@@ -18,7 +18,7 @@ public class DB_Operation {
 	 * update_Status = update's status as done.
 	 * delete_Task = Delete's task.
 	 * Reset_all = Deletes all task.
-	 * task_filter = print's tasks based on dates. */
+	 * task_filter = print's tasks based on dates.*/
 
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     /*
