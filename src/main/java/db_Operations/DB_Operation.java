@@ -10,6 +10,20 @@ public class DB_Operation {
 	private final static String user = "to_do";
 	private final static String password = "pass123";
 	public static Connection db = null;
+	
+	public boolean Check_connection() {
+		boolean Db_stat = false;
+		try(Connection db=DriverManager.getConnection(URL, user, password)){
+			if(db!=null) {
+				//System.out.println("Connection to DB successful");
+				Db_stat = true;
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Connection to DB Failed");
+		}
+		return Db_stat;
+	}
 
 	/* 
 	 * Get_task = print's all task.
@@ -34,24 +48,33 @@ public class DB_Operation {
 			Statement statement = db.createStatement();
 			System.out.println();
 			System.out.println();
-			System.out.println("\t\t\t\t#############################");
-			System.out.print("\t\t\t\t##########");
-			System.out.print("  TO DO  ");
-			System.out.println("##########");
-			System.out.println("\t\t\t\t#############################");
+			System.out.println("\t\t\t\t********************************");
+			System.out.print("\t\t\t\t*********");
+			System.out.print("  TO DO LIST ");
+			System.out.println("*********");
+			System.out.println("\t\t\t\t********************************");
 			System.out.println("-------------------------------------------------------------------------------------------------------------");
 			ResultSet resultset = statement.executeQuery("SELECT TO_CHAR(date,'Mon dd yyyy') as date, TASK, STATUS, TASK_ID FROM task_main ORDER BY date DESC;");
 			System.out.printf("| %-30.30s | %-30.30s | %-30.30s | %-10.10s%n", "DATE", "TASK", "STATUS", "TASK ID");
 			System.out.println("-------------------------------------------------------------------------------------------------------------");
-			while (resultset.next()) {
-				System.out.printf("| %-30.30s | %-30.30s | %-30.30s | %-10.10s%n", resultset.getString("date"),
-						resultset.getString("task"), resultset.getString("status"), resultset.getString("task_id"));
-			}
+			//if(resultset.next()!=false) {
+				while (resultset.next()) {
+					System.out.printf("| %-30.30s | %-30.30s | %-30.30s | %-10.10s%n", resultset.getString("date"),
+							resultset.getString("task"), resultset.getString("status"), resultset.getString("task_id"));
+				}
+				
+			//}
+			//else {
+			//	System.out.println("\t\t\t\t\tNo Tasks added yet");
+			//}
+			
 			} catch (Exception e) {
-			System.out.println("Query Error");
-			e.printStackTrace();
+			System.out.println("Print Query Error");
+			}
+		System.out.println("#############################################################################################################");
+		
 		}
-	}
+	
 
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	/*
@@ -66,13 +89,12 @@ public class DB_Operation {
 			db = DriverManager.getConnection(URL, user, password);
 			// Statement execution
 			Statement statement = db.createStatement();
-			String insertQuery = "INSERT INTO task_main (date,task) values ((TO_DATE('"+ date+"','DD/MM/YYYY')),'"+ task +"');";
+			String insertQuery = "INSERT INTO task_main (date,task) values ('"+date+"','"+ task +"');"; // date format MM/DD/YYYY
 			statement.executeUpdate(insertQuery);
 			System.out.println("Insertion succesful");
 
 		} catch (Exception e) {
-			System.out.println("Update task failed");
-			e.printStackTrace();
+			System.out.println("Update task failed - Invalid data");
 		}
 	}
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -96,8 +118,7 @@ public class DB_Operation {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Update method failed");
-			e.printStackTrace();
+			System.out.println("Update task method failed ");
 		}
 
 		// Update statement
@@ -113,8 +134,8 @@ public class DB_Operation {
 				System.out.println("Task ID doesnt exist");
 			}
 		} catch (Exception e) {
-			System.out.println("Update Query failed");
-			e.printStackTrace();
+			System.out.println("Update Query failed - Invalid data");
+
 		}
 
 	}
@@ -139,8 +160,8 @@ public class DB_Operation {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Update status method failed");
-			e.printStackTrace();
+			System.out.println("Update status method failed - invalid data");
+			
 		}
 
 		// Update statement
@@ -156,7 +177,7 @@ public class DB_Operation {
 				System.out.println("Task ID doesnt exist");
 			}
 		} catch (Exception e) {
-			System.out.println("Update status Query failed");
+			System.out.println("Update status Query failed - invalid data");
 			e.printStackTrace();
 		}
 
@@ -181,8 +202,8 @@ public class DB_Operation {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Update status method failed");
-			e.printStackTrace();
+			System.out.println("Update status method failed - invalid data");
+			
 		}
 
 		// Delete statement
@@ -198,7 +219,7 @@ public class DB_Operation {
 			}
 		} catch (Exception e) {
 			System.out.println("Delete task Query failed");
-			e.printStackTrace();
+	
 		}
 
 	}
@@ -223,10 +244,46 @@ public class DB_Operation {
 			
 		} catch (Exception e) {
 			System.out.println("Task reset method failed");
-			e.printStackTrace();
+			
 		}
 
 	}
 
+	   //@@@@@@@@@@@@@@@@@@@@@@@@@
+		/*
+		 * Filter based on date 
+		 * 
+		 */
+		//@@@@@@@@@@@@@@@@@@@@@@@@@
+	public void Filter(String date) {
+
+		try {
+
+			db = DriverManager.getConnection(URL, user, password);
+			Statement statement = db.createStatement();
+			String filterQuery = "SELECT TO_CHAR(date,'Mon dd yyyy') as date, TASK, STATUS, TASK_ID FROM task_main WHERE date='"
+					+ date + "';";
+			ResultSet resultset = statement.executeQuery(filterQuery);
+			System.out.println("\t\t\t#################  Task List for date " + date + "  #################");
+			System.out.println("-------------------------------------------------------------------------------------------------------------");
+			System.out.printf("| %-30.30s | %-30.30s | %-30.30s | %-10.10s%n", "DATE", "TASK", "STATUS", "TASK ID");
+			System.out.println("-------------------------------------------------------------------------------------------------------------");
+			//if(resultset.next()== false) {
+				//System.out.println("\t\t\t\tNO TASKS FOR THE DATE");
+			//}
+			//else {
+			while (resultset.next()) {
+				System.out.printf("| %-30.30s | %-30.30s | %-30.30s | %-10.10s%n", resultset.getString("date"),
+						resultset.getString("task"), resultset.getString("status"), resultset.getString("task_id"));
+
+			
+			//}
+			}
+		} catch (Exception e) {
+			System.out.println("Task Filter method failed");
+		    e.printStackTrace();
+		}
+
+		}
 
 }
